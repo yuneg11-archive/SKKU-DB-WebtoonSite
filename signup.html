@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Sign up</title>
+
+        <link href="/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link href="/css/sign.css" rel="stylesheet">
+    </head>
+    <body class="text-center">
+        <form class="form-sign form-signup" method='post' action='util/user_signup.php'>
+            <h1 class="h3 mb-3 font-weight-normal">Sign up</h1>
+
+            <label for="inputID" class="sr-only">ID</label>
+            <input type="text" id="inputID" name="User_id" class="form-control" placeholder="ID" required autofocus>
+
+            <label for="inputPassword" class="sr-only">Password</label>
+            <input type="password" id="inputPassword" name="User_password" class="form-control" placeholder="Password" required>
+
+            <label for="inputPasswordCheck" class="sr-only">Password Check</label>
+            <input type="password" id="inputPasswordCheck" name="User_password_check" class="form-control" placeholder="Password Check" required>
+
+            <label for="inputName" class="sr-only">Name (Optional)</label>
+            <input type="text" id="inputName" name="User_name" class="form-control" placeholder="Name (Optional)">
+
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
+        </form>
+    </body>
+</html>

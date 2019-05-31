@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Sign in</title>
+
+        <link href="/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link href="/css/sign.css" rel="stylesheet">
+    </head>
+    <body class="text-center">
+        <form class="form-sign form-signin" method='post' action='util/user_signin.php'>
+            <h1 class="h3 mb-3 font-weight-normal">Sign in</h1>
+
+            <label for="inputID" class="sr-only">ID</label>
+            <input type="text" id="inputID" name="User_id" class="form-control" placeholder="ID" required autofocus>
+
+            <label for="inputPassword" class="sr-only">Password</label>
+            <input type="password" id="inputPassword" name="User_password" class="form-control" placeholder="Password" required>
+
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        </form>
+    </body>
+</html>
