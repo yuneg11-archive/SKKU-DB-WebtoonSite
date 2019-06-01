@@ -1,0 +1,31 @@
+body {
+  padding-top: 3rem;
+  color: #5a5a5a;
+}
+
+.card-img-top {
+  font-size: 1.125rem;
+  text-anchor: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.fa-star {
+  color: gray;
+}
+
+.checked {
+  color: orange;
+}
+
+.series-title {
+  color: black;
+  font-size: 1.5rem;
+}
+
+.series-author {
+  color: gray;
+  font-size: 1rem;
+}
