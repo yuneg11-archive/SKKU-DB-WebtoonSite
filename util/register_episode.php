@@ -52,6 +52,7 @@
 
     $image_number = 1;
     foreach(glob($file_path, GLOB_BRACE) as $image_path) {
+        $image_path = str_replace("../content/", "", $image_path);
         $sql_query_image_register = $sql_query_image_register_partial."$image_number, '$image_path')";
         if($database_connection->query($sql_query_image_register) == FALSE) {
             $database_connection->query($sql_query_episode_remove);
