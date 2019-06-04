@@ -3,6 +3,11 @@
     $user_id = $_POST['User_id'];
     $user_pw = $_POST['User_password'];
 
+    if(trim($user_id) == "" || trim($user_pw) == "") {
+        echo "<script>alert(\"Invalid access\");history.back();</script>";
+        exit;
+    }
+
     // Prepare SQL Query
     require "connection.php";
 

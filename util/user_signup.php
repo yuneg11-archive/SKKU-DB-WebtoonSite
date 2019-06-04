@@ -5,6 +5,11 @@
     $user_pw_check = $_POST['User_password_check'];
     $user_name = $_POST['User_name'];
 
+    if(trim($user_id) == "" || trim($user_pw) == "") {
+        echo "<script>alert(\"Invalid access\");history.back();</script>";
+        exit;
+    }
+
     if($user_pw !== $user_pw_check) {
         echo "<script>alert('Passwords do not match.');history.back();</script>";
         exit;

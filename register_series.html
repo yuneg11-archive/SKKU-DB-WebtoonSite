@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Register Series</title>
+
+        <link href="/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/css/form.css" rel="stylesheet">
+    </head>
+    <body class="text-center">
+        <form class="form-register form-register-series" method='post' action='util/register_series.php'>
+            <h1 class="h3 mb-3 font-weight-normal">Series information</h1>
+
+            <label for="inputTitle" class="sr-only">Title</label>
+            <input type="text" id="inputTitle" name="Title" class="form-control" placeholder="Title" required autofocus>
+
+            <label for="inputAuthor" class="sr-only">Author</label>
+            <input type="text" id="inputAuthor" name="Author" class="form-control" placeholder="Author">
+
+            <label for="inputSynopsis" class="sr-only">Synopsis</label>
+            <textarea id="inputSynopsis" name="Synopsis" class="form-control" placeholder="Synopsis" rows="5"></textarea>
+
+            <label for="inputCoverPath" class="sr-only">Cover path</label>
+            <input type="text" id="inputCoverPath" name="Cover_path" class="form-control" placeholder="Cover path">
+
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+        </form>
+    </body>
+</html>

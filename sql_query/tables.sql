@@ -7,7 +7,7 @@ CREATE TABLE USER(
 );
 
 CREATE TABLE SERIES(
-    Series_id       INTEGER         NOT NULL,
+    Series_id       INTEGER         NOT NULL AUTO_INCREMENT,
     Title           VARCHAR(128)    NOT NULL,
     Synopsis        VARCHAR(1024),
     Author          VARCHAR(16),
