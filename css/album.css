@@ -38,8 +38,6 @@ body {
 .jumbotron {
   padding-top: 2rem;
   padding-bottom: 2rem;
-  min-height: 18rem;
-  background-size: cover;
   color: black;
 }
 
@@ -47,8 +45,30 @@ body {
   padding-top: 1rem;
 }
 
+#jumbotron-series {
+  min-height: 18rem;
+}
+
+#jumbotron-episode {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  min-height: 10rem;
+}
+
 #series-cover {
   margin-right: 2rem;
   height: 14rem;
   width: 14rem;
+}
+
+.form-comment {
+  padding: 0;
+}
+
+.form-comment button {
+  height: 6rem;
+}
+
+.form-comment textarea {
+  height: 6rem;
 }

@@ -23,12 +23,14 @@
             }
 
             $series_id = $_GET['series_id'];
+            $episode_id = $_GET['episode_id'];
 
             // Prepare SQL Query
             require "util/connection.php";
 
-            $sql_query_series_information = "SELECT Title, Author, Synopsis, Cover_path FROM SERIES WHERE Series_id = $series_id";
-            $sql_query_episode_list = "SELECT Series_id, Episode_id, Title, Cover_path, Update_time FROM EPISODE WHERE Series_id = $series_id";
+            $sql_query_episode_information = "SELECT Title, Update_time FROM EPISODE WHERE Series_id = $series_id AND Episode_id = $episode_id";
+            $sql_query_image_list = "SELECT Image_number, Image_path FROM IMAGELIST WHERE Series_id = $series_id AND Episode_id = $episode_id";
+            $sql_query_image_list = "SELECT Image_number, Image_path FROM IMAGELIST WHERE Series_id = $series_id AND Episode_id = $episode_id";
 
             // Connect to database
             $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
@@ -74,87 +76,95 @@
             </nav>
         </header>
         <main role="main">
-            <section id='jumbotron-series' class="jumbotron">
+            <section id='jumbotron-episode' class="jumbotron">
                 <div class="container">
                     <?php
-                        // Get series information
-                        if(($result = $database_connection->query($sql_query_series_information)) == FALSE) {
+                        // Get episode information
+                        if(($result = $database_connection->query($sql_query_episode_information)) == FALSE) {
                             echo "<script>alert('Database operation failed');history.back();</script>";
                             exit;
                         } else {
                             $row = $result->fetch_assoc();
                             $title = $row["Title"];
-                            $author = $row["Author"];
-                            $synopsis = $row["Synopsis"];
-                            $cover_path = $row["Cover_path"];
+                            $update_time = explode(" ", $row["Update_time"])[0];
                         }
 
                         // Display series information
-                        echo "<img id='series-cover' src='content/$cover_path' class='rounded float-left' alt='Cover image'>";
-                        echo "<h1 class='jumbotron-heading'>$title</h1>";
-                        echo "<p class='lead'>$synopsis</p>";
-                        echo "<p class='container'>";
+                        echo "<p><a class='btn btn-secondary btn-sm' href='series.php?series_id=$series_id' role='button'>< Back</a></p>";
+                        echo "<h2>$title</h2>";
+                        echo "<div class='float-left'>$update_time</div>";
+                        echo "<div class='float-right'>";
                         echo     "<span class='fa fa-star checked'></span>";
                         echo     "<span class='fa fa-star checked'></span>";
                         echo     "<span class='fa fa-star checked'></span>";
                         echo     "<span class='fa fa-star'></span>";
                         echo     "<span class='fa fa-star'></span>";
-                        echo "</p>";
-                        echo "<p><a href='util/subscribe.php?series_id=$series_id&user_id=$user_id' class='btn btn-primary'>Subscribe</a></p>";
+                        echo "</div>";
                     ?>
                 </div>
             </section>
-            <div class="album py-5 bg-light">
-                <div class="container">
+            <div>
+                <div class="container text-center">
                     <div class="row">
                         <?php
                             // Get series list
-                            if(($result = $database_connection->query($sql_query_episode_list)) == FALSE) {
+                            if(($result = $database_connection->query($sql_query_image_list)) == FALSE) {
                                 echo "<script>alert('Database operation failed');history.back();</script>";
                                 exit;
                             } else {
                                 while ($row = $result->fetch_assoc()) {
-                                    $series_id = $row["Series_id"];
-                                    $episode_id = $row["Episode_id"];
-                                    $title = $row["Title"];
-                                    $cover_path = $row["Cover_path"];
-                                    $update_time = explode(" ", $row["Update_time"])[0];
+                                    $image_number = $row["Image_number"];
+                                    $image_path = $row["Image_path"];
 
-                                    echo "<a href='episode.php?series_id=$series_id&episode_id=$episode_id' class='col-md-4' style='text-decoration: none'>";
-                                    echo     "<div class='card mb-4 shadow-sm'>";
-                                    if($cover_path == "") {
-                                        echo     "<svg class='card-img-top' width='100%' height='225' focusable='false'>";
-                                        echo         "<title>Thumbnail</title>";
-                                        echo         "<rect width='100%' height='100%' fill='#55595c'/>";
-                                        echo         "<text x='50%' y='50%' fill='#eceeef' dy='.3em'>No Thumbnail</text>";
-                                        echo     "</svg>";
-                                    } else {
-                                        echo     "<img src='content/$cover_path' alt='Thumbnail' class='card-img-top' width='100%' height='225'>";
-                                    }
-                                    echo         "<div class='card-body'>";
-                                    echo             "<div class='d-flex justify-content-between align-items-center'>";
-                                    echo                 "<p class='card-text episode-title'>$title</p>";
-                                    echo                 "<small class='text-muted float-right'></small>";
-                                    echo             "</div>";
-                                    echo             "<div class='d-flex justify-content-between align-items-center'>";
-                                    echo                 "<div class='float-right'>";
-                                    echo                     "<span class='fa fa-star checked'></span>";
-                                    echo                     "<span class='fa fa-star checked'></span>";
-                                    echo                     "<span class='fa fa-star checked'></span>";
-                                    echo                     "<span class='fa fa-star'></span>";
-                                    echo                     "<span class='fa fa-star'></span>";
-                                    echo                 "</div>";
-                                    echo                 "<small class='text-muted'>$update_time</small>";
-                                    echo             "</div>";
-                                    echo         "</div>";
-                                    echo     "</div>";
-                                    echo "</a>";
+                                    echo "<img src='content/$image_path' alt='Image $image_number' class='' width='100%' height='100%'>";
                                 }
                             }
 
                             // Close connection
                             $database_connection->close();
                         ?>
+                    </div>
+                    <p></p>
+                    <form class="row form-comment" method='post' action='util/comment.php'>
+                        <input type='hidden' name='User_id' value='<?= $user_id?>' />
+                        <input type='hidden' name='Series_id' value='<?= $series_id?>' />
+                        <input type='hidden' name='Episode_id' value='<?= $episode_id?>' />
+                        <div class="col-9">
+                            <label for="inputComment" class="sr-only">Enter comment here...</label>
+                            <textarea id="inputComment" name="Content" class="form-control" placeholder="Enter comment..." rows="3"></textarea>
+                        </div>
+                        <div class="col-3 text-center">
+                            <button class="btn btn-lg btn-secondary btn-block" type="submit">Comment</button>
+                        </div>
+                    </form>
+                    <p></p>
+                    <div class="row">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">First</th>
+                                <th scope="col">Handle</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>Mark</td>
+                                <td>@mdo</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">2</th>
+                                <td>Jacob</td>
+                                <td>@fat</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">3</th>
+                                <td>Larry</td>
+                                <td>@twitter</td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

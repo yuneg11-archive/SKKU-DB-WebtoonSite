@@ -108,7 +108,7 @@
                                     echo                     "<span class='fa fa-star'></span>";
                                     echo                     "<span class='fa fa-star'></span>";
                                     echo                 "</div>";
-                                    echo                 "<small class='text-muted'>Update: 2019.6.2</small>";
+                                    echo                 "<small class='text-muted'>2019.6.2</small>";
                                     echo             "</div>";
                                     echo         "</div>";
                                     echo     "</div>";
