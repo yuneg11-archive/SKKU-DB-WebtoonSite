@@ -21,10 +21,26 @@
                 $user_id = $_SESSION['User_id'];
                 $user_name = $_SESSION['User_name'];
             }
+
+            $series_id = $_GET['series_id'];
+
+            // Prepare SQL Query
+            require "util/connection.php";
+
+            $sql_query_series_information = "SELECT Title, Author, Synopsis, Cover_path FROM SERIES WHERE Series_id = $series_id";
+            $sql_query_episode_list = "SELECT Series_id, Episode_id, Title, Cover_path, Update_time FROM EPISODE WHERE Series_id = $series_id";
+
+            // Connect to database
+            $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
+
+            if ($database_connection->connect_error) {
+                echo "<script>alert('Database connection failed.');history.back();</script>";
+                exit;
+            }
         ?>
         <header>
             <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-                <a class="navbar-brand" href="#">Webtoon</a>
+                <a class="navbar-brand" href="index.php">Webtoon</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
                         aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -32,22 +48,22 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <ul class="navbar-nav mr-auto">
                         <?php
-                        if($user_signed) {
-                            // Signed in
-                            echo "<li class='nav-item active'><a class='nav-link' href='#'>";
-                            echo ($user_name != "") ? "$user_name" : "$user_id";
-                            echo "</a></li>";
-                            if($user_id === 'admin') {
-                                // Admin signed in
-                                echo "<li class='nav-item'><a class='nav-link' href='register_series.html'>Register Series</a></li>";
-                                echo "<li class='nav-item'><a class='nav-link' href='register_episode.php'>Register Episode</a></li>";
+                            if($user_signed) {
+                                // Signed in
+                                echo "<li class='nav-item active'><a class='nav-link' href='#'>";
+                                echo ($user_name != "") ? "$user_name" : "$user_id";
+                                echo "</a></li>";
+                                if($user_id === 'admin') {
+                                    // Admin signed in
+                                    echo "<li class='nav-item'><a class='nav-link' href='register_series.html'>Register Series</a></li>";
+                                    echo "<li class='nav-item'><a class='nav-link' href='register_episode.php'>Register Episode</a></li>";
+                                }
+                                echo "<li class='nav-item'><a class='nav-link' href='/util/user_signout.php'>Sign out</a></li>";
+                            } else {
+                                // Not signed in
+                                echo "<li class='nav-item'><a class='nav-link' href='signin.html'>Sign in</a></li>";
+                                echo "<li class='nav-item'><a class='nav-link' href='signup.html'>Sign up</a></li>";
                             }
-                            echo "<li class='nav-item'><a class='nav-link' href='/util/user_signout.php'>Sign out</a></li>";
-                        } else {
-                            // Not signed in
-                            echo "<li class='nav-item'><a class='nav-link' href='signin.html'>Sign in</a></li>";
-                            echo "<li class='nav-item'><a class='nav-link' href='signup.html'>Sign up</a></li>";
-                        }
                         ?>
                     </ul>
                     <form class="form-inline mt-2 mt-md-0">
@@ -58,33 +74,53 @@
             </nav>
         </header>
         <main role="main">
+            <section class="jumbotron">
+                <div class="container">
+                    <?php
+                        // Get series information
+                        if(($result = $database_connection->query($sql_query_series_information)) == FALSE) {
+                            echo "<script>alert('Database operation failed');history.back();</script>";
+                            exit;
+                        } else {
+                            $row = $result->fetch_assoc();
+                            $title = $row["Title"];
+                            $author = $row["Author"];
+                            $synopsis = $row["Synopsis"];
+                            $cover_path = $row["Cover_path"];
+                        }
+
+                        // Display series information
+                        echo "<img id='series-cover' src='content/$cover_path' class='rounded float-left' alt='Cover image'>";
+                        echo "<h1 class='jumbotron-heading'>$title</h1>";
+                        echo "<p class='lead'>$synopsis</p>";
+                        echo "<p class='container'>";
+                        echo     "<span class='fa fa-star checked'></span>";
+                        echo     "<span class='fa fa-star checked'></span>";
+                        echo     "<span class='fa fa-star checked'></span>";
+                        echo     "<span class='fa fa-star'></span>";
+                        echo     "<span class='fa fa-star'></span>";
+                        echo "</p>";
+                        echo "<p><a href='util/subscribe.php?series_id=$series_id&user_id=$user_id' class='btn btn-primary'>Subscribe</a></p>";
+                    ?>
+                </div>
+            </section>
             <div class="album py-5 bg-light">
                 <div class="container">
                     <div class="row">
                         <?php
-                            // Prepare SQL Query
-                            require "util/connection.php";
-
-                            $sql_query_series_list = "SELECT Series_id, Title, Author, Cover_path FROM SERIES";
-
-                            // Connect to database
-                            $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
-
-                            if($database_connection->connect_error) {
-                                die("Database connection failed.");
-                            }
-
                             // Get series list
-                            if(($result = $database_connection->query($sql_query_series_list)) == FALSE) {
-                                die("Database operation failed.");
+                            if(($result = $database_connection->query($sql_query_episode_list)) == FALSE) {
+                                echo "<script>alert('Database operation failed');history.back();</script>";
+                                exit;
                             } else {
                                 while ($row = $result->fetch_assoc()) {
                                     $series_id = $row["Series_id"];
+                                    $episode_id = $row["Episode_id"];
                                     $title = $row["Title"];
-                                    $author = $row["Author"];
                                     $cover_path = $row["Cover_path"];
+                                    $update_time = explode(" ", $row["Update_time"])[0];
 
-                                    echo "<a href='series.php?series_id=$series_id' class='col-md-4' style='text-decoration: none'>";
+                                    echo "<a href='episode.php?series_id=$series_id&episode_id=$episode_id' class='col-md-4' style='text-decoration: none'>";
                                     echo     "<div class='card mb-4 shadow-sm'>";
                                     if($cover_path == "") {
                                         echo     "<svg class='card-img-top' width='100%' height='225' focusable='false'>";
@@ -97,8 +133,8 @@
                                     }
                                     echo         "<div class='card-body'>";
                                     echo             "<div class='d-flex justify-content-between align-items-center'>";
-                                    echo                 "<p class='card-text series-title'>$title</p>";
-                                    echo                 "<small class='text-muted series-author float-right'>$author</small>";
+                                    echo                 "<p class='card-text episode-title'>$title</p>";
+                                    echo                 "<small class='text-muted float-right'></small>";
                                     echo             "</div>";
                                     echo             "<div class='d-flex justify-content-between align-items-center'>";
                                     echo                 "<div class='float-right'>";
@@ -108,7 +144,7 @@
                                     echo                     "<span class='fa fa-star'></span>";
                                     echo                     "<span class='fa fa-star'></span>";
                                     echo                 "</div>";
-                                    echo                 "<small class='text-muted'>Update: 2019.6.2</small>";
+                                    echo                 "<small class='text-muted'>Update: $update_time</small>";
                                     echo             "</div>";
                                     echo         "</div>";
                                     echo     "</div>";
