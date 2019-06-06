@@ -5,6 +5,11 @@
     $episode_id = $_POST['Episode_id'];
     $content = $_POST['Content'];
 
+    if(trim($series_id) == "" || trim($episode_id) == "") {
+        echo "<script>alert('Invalid access');history.back();</script>";
+        exit;
+    }
+
     if(trim($user_id) == "") {
         echo "<script>alert('Please sign in.');history.back();</script>";
         exit;

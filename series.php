@@ -29,6 +29,7 @@
 
             $sql_query_series_information = "SELECT Title, Author, Synopsis, Cover_path FROM SERIES WHERE Series_id = $series_id";
             $sql_query_episode_list = "SELECT Series_id, Episode_id, Title, Cover_path, Update_time FROM EPISODE WHERE Series_id = $series_id";
+            $sql_query_subscribe_exist = "SELECT User_id FROM SUBSCRIBE WHERE User_id = '$user_id' AND Series_id = '$series_id'";
 
             // Connect to database
             $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
@@ -89,6 +90,18 @@
                             $cover_path = $row["Cover_path"];
                         }
 
+                        // Get subscribe information
+                        if(($result = $database_connection->query($sql_query_subscribe_exist)) == FALSE) {
+                            echo "<script>alert('Database operation failed');history.back();</script>";
+                            exit;
+                        } else {
+                            if($result->num_rows > 0) {
+                                $subscribe_exist = true;
+                            } else {
+                                $subscribe_exist = false;
+                            }
+                        }
+
                         // Display series information
                         echo "<img id='series-cover' src='content/$cover_path' class='rounded float-left' alt='Cover image'>";
                         echo "<h1 class='jumbotron-heading'>$title</h1>";
@@ -100,7 +113,11 @@
                         echo     "<span class='fa fa-star'></span>";
                         echo     "<span class='fa fa-star'></span>";
                         echo "</p>";
-                        echo "<p><a href='util/subscribe.php?series_id=$series_id&user_id=$user_id' class='btn btn-primary'>Subscribe</a></p>";
+                        if($subscribe_exist) {
+                            echo "<p><a href='util/subscribe.php?series_id=$series_id&user_id=$user_id' class='btn btn-secondary'>Unsubscribe</a></p>";
+                        } else {
+                            echo "<p><a href='util/subscribe.php?series_id=$series_id&user_id=$user_id' class='btn btn-primary'>Subscribe</a></p>";
+                        }
                     ?>
                 </div>
             </section>
