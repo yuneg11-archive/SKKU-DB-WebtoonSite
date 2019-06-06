@@ -28,7 +28,7 @@
             // Prepare SQL Query
             require "util/connection.php";
 
-            $sql_query_episode_information = "SELECT Title, Update_time FROM EPISODE WHERE Series_id = $series_id AND Episode_id = $episode_id";
+            $sql_query_episode_information = "SELECT Title, AVG(Value) AS Average, Update_time FROM EPISODE NATURAL JOIN EVALUATION WHERE Series_id = $series_id AND Episode_id = $episode_id";
             $sql_query_image_list = "SELECT Image_number, Image_path FROM IMAGELIST WHERE Series_id = $series_id AND Episode_id = $episode_id";
             $sql_query_comment_list = "SELECT User_id, Content, Update_time FROM COMMENT WHERE Series_id = $series_id AND Episode_id = $episode_id";
             //$sql_query_comment_list = "SELECT User_id, User_name, Content, Update_time FROM COMMENT NATURAL JOIN USER WHERE Series_id = $series_id AND Episode_id = $episode_id"
@@ -89,6 +89,7 @@
                         } else {
                             $row = $result->fetch_assoc();
                             $title = $row["Title"];
+                            $average = round($row["Average"] / 2);
                             $update_time = explode(" ", $row["Update_time"])[0];
                         }
 
@@ -97,11 +98,13 @@
                         echo "<h2>$title</h2>";
                         echo "<div class='float-left'>$update_time</div>";
                         echo "<div class='float-right'>";
-                        echo     "<span class='fa fa-star checked'></span>";
-                        echo     "<span class='fa fa-star checked'></span>";
-                        echo     "<span class='fa fa-star checked'></span>";
-                        echo     "<span class='fa fa-star'></span>";
-                        echo     "<span class='fa fa-star'></span>";
+                        for($i = 1; $i <= 5; $i++) {
+                            if($i <= $average) {
+                                echo "<span class='fa fa-star checked'></span>";
+                            } else {
+                                echo "<span class='fa fa-star'></span>";
+                            }
+                        }
                         echo "</div>";
                     ?>
                 </div>

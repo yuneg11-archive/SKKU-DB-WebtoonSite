@@ -65,7 +65,7 @@
                             // Prepare SQL Query
                             require "util/connection.php";
 
-                            $sql_query_series_list = "SELECT Series_id, Title, Author, Cover_path FROM SERIES";
+                            $sql_query_series_list = "SELECT Series_id, Title, Author, AVG(Value) as Average, Cover_path FROM SERIES NATURAL JOIN EVALUATION GROUP BY Series_id";
 
                             // Connect to database
                             $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
@@ -82,6 +82,7 @@
                                     $series_id = $row["Series_id"];
                                     $title = $row["Title"];
                                     $author = $row["Author"];
+                                    $average = round($row["Average"] / 2);
                                     $cover_path = $row["Cover_path"];
 
                                     echo "<a href='series.php?series_id=$series_id' class='col-md-4' style='text-decoration: none'>";
@@ -102,11 +103,13 @@
                                     echo             "</div>";
                                     echo             "<div class='d-flex justify-content-between align-items-center'>";
                                     echo                 "<div class='float-right'>";
-                                    echo                     "<span class='fa fa-star checked'></span>";
-                                    echo                     "<span class='fa fa-star checked'></span>";
-                                    echo                     "<span class='fa fa-star checked'></span>";
-                                    echo                     "<span class='fa fa-star'></span>";
-                                    echo                     "<span class='fa fa-star'></span>";
+                                    for($i = 1; $i <= 5; $i++) {
+                                        if($i <= $average) {
+                                            echo             "<span class='fa fa-star checked'></span>";
+                                        } else {
+                                            echo             "<span class='fa fa-star'></span>";
+                                        }
+                                    }
                                     echo                 "</div>";
                                     echo                 "<small class='text-muted'>2019.6.2</small>";
                                     echo             "</div>";

@@ -27,8 +27,8 @@
             // Prepare SQL Query
             require "util/connection.php";
 
-            $sql_query_series_information = "SELECT Title, Author, Synopsis, Cover_path FROM SERIES WHERE Series_id = $series_id";
-            $sql_query_episode_list = "SELECT Series_id, Episode_id, Title, Cover_path, Update_time FROM EPISODE WHERE Series_id = $series_id";
+            $sql_query_series_information = "SELECT Title, Author, Synopsis, AVG(Value) AS Average, Cover_path FROM SERIES NATURAL JOIN EVALUATION WHERE Series_id = $series_id";
+            $sql_query_episode_list = "SELECT Series_id, Episode_id, Title, AVG(Value) AS Average, Cover_path, Update_time FROM EPISODE NATURAL JOIN EVALUATION WHERE Series_id = $series_id GROUP BY Series_id, Episode_id";
             $sql_query_subscribe_exist = "SELECT User_id FROM SUBSCRIBE WHERE User_id = '$user_id' AND Series_id = '$series_id'";
 
             // Connect to database
@@ -87,6 +87,7 @@
                             $title = $row["Title"];
                             $author = $row["Author"];
                             $synopsis = $row["Synopsis"];
+                            $average = round($row["Average"] / 2);
                             $cover_path = $row["Cover_path"];
                         }
 
@@ -107,11 +108,13 @@
                         echo "<h1 class='jumbotron-heading'>$title</h1>";
                         echo "<p class='lead'>$synopsis</p>";
                         echo "<p class='container'>";
-                        echo     "<span class='fa fa-star checked'></span>";
-                        echo     "<span class='fa fa-star checked'></span>";
-                        echo     "<span class='fa fa-star checked'></span>";
-                        echo     "<span class='fa fa-star'></span>";
-                        echo     "<span class='fa fa-star'></span>";
+                        for($i = 1; $i <= 5; $i++) {
+                            if($i <= $average) {
+                                echo "<span class='fa fa-star checked'></span>";
+                            } else {
+                                echo "<span class='fa fa-star'></span>";
+                            }
+                        }
                         echo "</p>";
                         if($subscribe_exist) {
                             echo "<p><a href='util/subscribe.php?series_id=$series_id&user_id=$user_id' class='btn btn-secondary'>Unsubscribe</a></p>";
@@ -135,6 +138,7 @@
                                     $episode_id = $row["Episode_id"];
                                     $title = $row["Title"];
                                     $cover_path = $row["Cover_path"];
+                                    $average = round($row['Average'] / 2);
                                     $update_time = explode(" ", $row["Update_time"])[0];
 
                                     echo "<a href='episode.php?series_id=$series_id&episode_id=$episode_id' class='col-md-4' style='text-decoration: none'>";
@@ -155,11 +159,13 @@
                                     echo             "</div>";
                                     echo             "<div class='d-flex justify-content-between align-items-center'>";
                                     echo                 "<div class='float-right'>";
-                                    echo                     "<span class='fa fa-star checked'></span>";
-                                    echo                     "<span class='fa fa-star checked'></span>";
-                                    echo                     "<span class='fa fa-star checked'></span>";
-                                    echo                     "<span class='fa fa-star'></span>";
-                                    echo                     "<span class='fa fa-star'></span>";
+                                    for($i = 1; $i <= 5; $i++) {
+                                        if($i <= $average) {
+                                            echo             "<span class='fa fa-star checked'></span>";
+                                        } else {
+                                            echo             "<span class='fa fa-star'></span>";
+                                        }
+                                    }
                                     echo                 "</div>";
                                     echo                 "<small class='text-muted'>$update_time</small>";
                                     echo             "</div>";
