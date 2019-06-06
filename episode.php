@@ -32,6 +32,7 @@
             $sql_query_image_list = "SELECT Image_number, Image_path FROM IMAGELIST WHERE Series_id = $series_id AND Episode_id = $episode_id";
             $sql_query_comment_list = "SELECT User_id, Content, Update_time FROM COMMENT WHERE Series_id = $series_id AND Episode_id = $episode_id";
             //$sql_query_comment_list = "SELECT User_id, User_name, Content, Update_time FROM COMMENT NATURAL JOIN USER WHERE Series_id = $series_id AND Episode_id = $episode_id"
+            $sql_query_bookmark_exist = "SELECT User_id FROM BOOKMARK WHERE User_id = '$user_id' AND Series_id = $series_id AND Episode_id = $episode_id";
 
             // Connect to database
             $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
@@ -121,6 +122,41 @@
                                 }
                             }
                         ?>
+                    </div>
+                    <p></p>
+                    <div class="row">
+                        <div class="col-3"></div>
+                        <div class="col-3">
+                            <div class="" style="vertical-align: bottom;">
+                                <span class='fa fa-star checked'></span>
+                                <span class='fa fa-star checked'></span>
+                                <span class='fa fa-star checked'></span>
+                                <span class='fa fa-star'></span>
+                                <span class='fa fa-star'></span>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <?php
+                                // Get subscribe information
+                                if(($result = $database_connection->query($sql_query_bookmark_exist)) == FALSE) {
+                                    echo "<script>alert('Database operation failed');history.back();</script>";
+                                    exit;
+                                } else {
+                                    if($result->num_rows > 0) {
+                                        $bookmark_exist = true;
+                                    } else {
+                                        $bookmark_exist = false;
+                                    }
+                                }
+
+                                if($bookmark_exist) {
+                                    echo "<a href='util/bookmark.php?series_id=$series_id&episode_id=$episode_id&user_id=$user_id' class='btn btn-secondary'>Unbookmark</a>";
+                                } else {
+                                    echo "<a href='util/bookmark.php?series_id=$series_id&episode_id=$episode_id&user_id=$user_id' class='btn btn-primary'>Bookmark</a>";
+                                }
+                            ?>
+                        </div>
+                        <div class="col-3"></div>
                     </div>
                     <p></p>
                     <form class="row form-comment" method='post' action='util/comment.php'>
