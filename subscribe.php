@@ -14,17 +14,17 @@
             session_start();
             if(!isset($_SESSION['User_id'])) {
                 // Not signed in
-                $user_signed = false;
+                echo "<script>alert('Please sign in.');history.back();</script>";
+                exit;
             } else {
                 // Signed in
-                $user_signed = true;
                 $user_id = $_SESSION['User_id'];
                 $user_name = $_SESSION['User_name'];
             }
         ?>
         <header>
             <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-                <a class="navbar-brand" href="#">Webtoon</a>
+                <a class="navbar-brand" href="index.php">Webtoon</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
                         aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -32,7 +32,6 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <ul class="navbar-nav mr-auto">
                         <?php
-                        if($user_signed) {
                             // Signed in
                             echo "<li class='nav-item active'><a class='nav-link' href='#'>";
                             echo ($user_name != "") ? "$user_name" : "$user_id";
@@ -42,14 +41,9 @@
                                 echo "<li class='nav-item'><a class='nav-link' href='register_series.html'>Register Series</a></li>";
                                 echo "<li class='nav-item'><a class='nav-link' href='register_episode.php'>Register Episode</a></li>";
                             }
-                            echo "<li class='nav-item'><a class='nav-link' href='subscribe.php'>Subscribes</a></li>";
+                            echo "<li class='nav-item active'><a class='nav-link' href='subscribe.php'>Subscribes</a></li>";
                             echo "<li class='nav-item'><a class='nav-link' href='bookmark.php'>Bookmarks</a></li>";
                             echo "<li class='nav-item'><a class='nav-link' href='/util/user_signout.php'>Sign out</a></li>";
-                        } else {
-                            // Not signed in
-                            echo "<li class='nav-item'><a class='nav-link' href='signin.html'>Sign in</a></li>";
-                            echo "<li class='nav-item'><a class='nav-link' href='signup.html'>Sign up</a></li>";
-                        }
                         ?>
                     </ul>
                     <form class="form-inline mt-2 mt-md-0">
@@ -60,6 +54,11 @@
             </nav>
         </header>
         <main role="main">
+            <section class="jumbotron">
+                <div class="container">
+                    <h2><?= ($user_name != "") ? "$user_name" : "$user_id" ?>'s subscription</h2>
+                </div>
+            </section>
             <div class="album py-5 bg-light">
                 <div class="container">
                     <div class="row">
@@ -67,7 +66,7 @@
                             // Prepare SQL Query
                             require "util/connection.php";
 
-                            $sql_query_series_list = "SELECT Series_id, Title, Author, AVG(Value) as Average, Cover_path FROM SERIES NATURAL JOIN EVALUATION GROUP BY Series_id";
+                            $sql_query_series_list = "SELECT SERIES.Series_id, Title, Author, AVG(Value) as Average, Cover_path FROM SERIES, SUBSCRIBE NATURAL JOIN EVALUATION WHERE SERIES.Series_id = SUBSCRIBE.Series_id AND User_id = '$user_id' GROUP BY Series_id";
 
                             // Connect to database
                             $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
@@ -80,7 +79,7 @@
                             if(($result = $database_connection->query($sql_query_series_list)) == FALSE) {
                                 die("Database operation failed.");
                             } else {
-                                while ($row = $result->fetch_assoc()) {
+                                while($row = $result->fetch_assoc()) {
                                     $series_id = $row["Series_id"];
                                     $title = $row["Title"];
                                     $author = $row["Author"];
@@ -118,6 +117,10 @@
                                     echo         "</div>";
                                     echo     "</div>";
                                     echo "</a>";
+                                }
+
+                                if($result->num_rows == 0) {
+                                    echo "<h5>There is no subscribed series</h5>";
                                 }
                             }
 
