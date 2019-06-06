@@ -34,7 +34,7 @@
                         <?php
                         if($user_signed) {
                             // Signed in
-                            echo "<li class='nav-item active'><a class='nav-link' href='#'>";
+                            echo "<li class='nav-item active'><a class='nav-link' href='notification.php'>";
                             echo ($user_name != "") ? "$user_name" : "$user_id";
                             echo "</a></li>";
                             if($user_id === 'admin') {
@@ -67,7 +67,7 @@
                             // Prepare SQL Query
                             require "util/connection.php";
 
-                            $sql_query_series_list = "SELECT SERIES.Series_id AS Series_id, SERIES.Title AS Title, Author, AVG(Value) as Average, MAX(Update_time) AS Update_time, SERIES.Cover_path AS Cover_path FROM SERIES, EPISODE NATURAL JOIN EVALUATION WHERE SERIES.Series_id = EPISODE.Series_id GROUP BY SERIES.Series_id";
+                            $sql_query_series_list = "SELECT SERIES.Series_id AS Series_id, SERIES.Title AS Title, Author, AVG(Value) as Average, MAX(Update_time) AS Update_time, SERIES.Cover_path AS Cover_path FROM SERIES LEFT JOIN EPISODE ON SERIES.Series_id = EPISODE.Series_id LEFT JOIN EVALUATION ON EPISODE.Series_id = EVALUATION.Series_id GROUP BY SERIES.Series_id";
 
                             // Connect to database
                             $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);

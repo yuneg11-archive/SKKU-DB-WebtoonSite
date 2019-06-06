@@ -27,8 +27,8 @@
             // Prepare SQL Query
             require "util/connection.php";
 
-            $sql_query_series_information = "SELECT Title, Author, Synopsis, AVG(Value) AS Average, Cover_path FROM SERIES NATURAL JOIN EVALUATION WHERE Series_id = $series_id";
-            $sql_query_episode_list = "SELECT Series_id, Episode_id, Title, AVG(Value) AS Average, Cover_path, Update_time FROM EPISODE NATURAL JOIN EVALUATION WHERE Series_id = $series_id GROUP BY Series_id, Episode_id";
+            $sql_query_series_information = "SELECT Title, Author, Synopsis, AVG(Value) AS Average, Cover_path FROM SERIES LEFT JOIN EVALUATION ON SERIES.Series_id = EVALUATION.Series_id WHERE SERIES.Series_id = $series_id";
+            $sql_query_episode_list = "SELECT EPISODE.Series_id, EPISODE.Episode_id, Title, AVG(Value) AS Average, Cover_path, Update_time FROM EPISODE LEFT JOIN EVALUATION ON EPISODE.Series_id = EVALUATION.Series_id AND EPISODE.Episode_id = EVALUATION.Episode_id WHERE EPISODE.Series_id = $series_id GROUP BY EPISODE.Series_id, EPISODE.Episode_id";
             $sql_query_subscribe_exist = "SELECT User_id FROM SUBSCRIBE WHERE User_id = '$user_id' AND Series_id = '$series_id'";
 
             // Connect to database
@@ -51,7 +51,7 @@
                         <?php
                             if($user_signed) {
                                 // Signed in
-                                echo "<li class='nav-item active'><a class='nav-link' href='#'>";
+                                echo "<li class='nav-item active'><a class='nav-link' href='notification.php'>";
                                 echo ($user_name != "") ? "$user_name" : "$user_id";
                                 echo "</a></li>";
                                 if($user_id === 'admin') {

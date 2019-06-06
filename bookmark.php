@@ -33,7 +33,7 @@
                     <ul class="navbar-nav mr-auto">
                         <?php
                             // Signed in
-                            echo "<li class='nav-item active'><a class='nav-link' href='#'>";
+                            echo "<li class='nav-item active'><a class='nav-link' href='notification.php'>";
                             echo ($user_name != "") ? "$user_name" : "$user_id";
                             echo "</a></li>";
                             if($user_id === 'admin') {
@@ -66,7 +66,7 @@
                             // Prepare SQL Query
                             require "util/connection.php";
 
-                            $sql_query_episode_list = "SELECT EPISODE.Series_id, EPISODE.Episode_id, EPISODE.Title AS Episode_title, SERIES.Title AS Series_title, AVG(Value) AS Average, EPISODE.Cover_path, Update_time FROM EPISODE, BOOKMARK, SERIES NATURAL JOIN EVALUATION WHERE EPISODE.Series_id = BOOKMARK.Series_id AND EPISODE.Episode_id = BOOKMARK.Episode_id AND EPISODE.Series_id = SERIES.Series_id AND BOOKMARK.User_id = '$user_id' GROUP BY Series_id, Episode_id";
+                            $sql_query_episode_list = "SELECT EPISODE.Series_id, EPISODE.Episode_id, EPISODE.Title AS Episode_title, SERIES.Title AS Series_title, AVG(Value) AS Average, EPISODE.Cover_path, Update_time FROM SERIES, EPISODE LEFT JOIN EVALUATION ON EPISODE.Series_id = EVALUATION.Series_id AND EPISODE.Episode_id = EVALUATION.Episode_id WHERE EPISODE.Series_id = SERIES.Series_id AND EPISODE.Episode_id IN (SELECT Episode_id FROM BOOKMARK WHERE EPISODE.Episode_id = BOOKMARK.Episode_id AND EPISODE.Series_id = BOOKMARK.Series_id AND User_id = '$user_id') GROUP BY Series_id, Episode_id";
 
                             // Connect to database
                             $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
@@ -140,4 +140,3 @@
         <script src="/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
-

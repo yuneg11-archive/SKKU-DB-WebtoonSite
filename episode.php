@@ -28,10 +28,9 @@
             // Prepare SQL Query
             require "util/connection.php";
 
-            $sql_query_episode_information = "SELECT Title, AVG(Value) AS Average, Update_time FROM EPISODE NATURAL JOIN EVALUATION WHERE Series_id = $series_id AND Episode_id = $episode_id";
+            $sql_query_episode_information = "SELECT Title, AVG(Value) AS Average, Update_time FROM EPISODE LEFT JOIN EVALUATION ON EPISODE.Series_id = EVALUATION.Series_id AND EPISODE.Episode_id = EVALUATION.Episode_id WHERE EPISODE.Series_id = $series_id AND EPISODE.Episode_id = $episode_id";
             $sql_query_image_list = "SELECT Image_number, Image_path FROM IMAGELIST WHERE Series_id = $series_id AND Episode_id = $episode_id";
             $sql_query_comment_list = "SELECT User_id, Content, Update_time FROM COMMENT WHERE Series_id = $series_id AND Episode_id = $episode_id";
-            //$sql_query_comment_list = "SELECT User_id, User_name, Content, Update_time FROM COMMENT NATURAL JOIN USER WHERE Series_id = $series_id AND Episode_id = $episode_id"
             $sql_query_bookmark_exist = "SELECT User_id FROM BOOKMARK WHERE User_id = '$user_id' AND Series_id = $series_id AND Episode_id = $episode_id";
             $sql_query_evaluation_exist = "SELECT Value FROM EVALUATION WHERE User_id = '$user_id' AND Series_id = $series_id AND Episode_id = $episode_id";
 
@@ -55,7 +54,7 @@
                         <?php
                             if($user_signed) {
                                 // Signed in
-                                echo "<li class='nav-item active'><a class='nav-link' href='#'>";
+                                echo "<li class='nav-item active'><a class='nav-link' href='notification.php'>";
                                 echo ($user_name != "") ? "$user_name" : "$user_id";
                                 echo "</a></li>";
                                 if($user_id === 'admin') {
