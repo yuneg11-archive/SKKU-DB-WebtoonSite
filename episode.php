@@ -30,7 +30,8 @@
 
             $sql_query_episode_information = "SELECT Title, Update_time FROM EPISODE WHERE Series_id = $series_id AND Episode_id = $episode_id";
             $sql_query_image_list = "SELECT Image_number, Image_path FROM IMAGELIST WHERE Series_id = $series_id AND Episode_id = $episode_id";
-            $sql_query_image_list = "SELECT Image_number, Image_path FROM IMAGELIST WHERE Series_id = $series_id AND Episode_id = $episode_id";
+            $sql_query_comment_list = "SELECT User_id, Content, Update_time FROM COMMENT WHERE Series_id = $series_id AND Episode_id = $episode_id";
+            //$sql_query_comment_list = "SELECT User_id, User_name, Content, Update_time FROM COMMENT NATURAL JOIN USER WHERE Series_id = $series_id AND Episode_id = $episode_id"
 
             // Connect to database
             $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
@@ -119,9 +120,6 @@
                                     echo "<img src='content/$image_path' alt='Image $image_number' class='' width='100%' height='100%'>";
                                 }
                             }
-
-                            // Close connection
-                            $database_connection->close();
                         ?>
                     </div>
                     <p></p>
@@ -141,28 +139,32 @@
                     <div class="row">
                         <table class="table table-striped">
                             <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">First</th>
-                                <th scope="col">Handle</th>
-                            </tr>
+                                <tr>
+                                    <th scope="col">User</th>
+                                    <th scope="col">Comment</th>
+                                    <th scope="col">Time</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>@mdo</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">2</th>
-                                <td>Jacob</td>
-                                <td>@fat</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">3</th>
-                                <td>Larry</td>
-                                <td>@twitter</td>
-                            </tr>
+                                <?php
+                                    // Get comment list
+                                    if(($result = $database_connection->query($sql_query_comment_list)) == FALSE) {
+                                        echo "<script>alert('Database operation failed');history.back();</script>";
+                                        exit;
+                                    } else {
+                                        while ($row = $result->fetch_assoc()) {
+                                            $comment_user_id = $row["User_id"];
+                                            $comment_content = str_replace("\n", "<br>", $row["Content"]);
+                                            $comment_update_time = $row["Update_time"];
+
+                                            echo "<tr>";
+                                            echo "<th scope='row'>$comment_user_id</th>";
+                                            echo "<td>$comment_content</td>";
+                                            echo "<td>$comment_update_time</td>";
+                                            echo "</tr>";
+                                        }
+                                    }
+                                ?>
                             </tbody>
                         </table>
                     </div>
