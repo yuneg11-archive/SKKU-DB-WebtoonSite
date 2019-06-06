@@ -41,8 +41,8 @@
                                 echo "<li class='nav-item'><a class='nav-link' href='register_series.html'>Register Series</a></li>";
                                 echo "<li class='nav-item'><a class='nav-link' href='register_episode.php'>Register Episode</a></li>";
                             }
-                            echo "<li class='nav-item active'><a class='nav-link' href='subscribe.php'>Subscribes</a></li>";
-                            echo "<li class='nav-item'><a class='nav-link' href='bookmark.php'>Bookmarks</a></li>";
+                            echo "<li class='nav-item'><a class='nav-link' href='subscribe.php'>Subscribes</a></li>";
+                            echo "<li class='nav-item active'><a class='nav-link' href='bookmark.php'>Bookmarks</a></li>";
                             echo "<li class='nav-item'><a class='nav-link' href='/util/user_signout.php'>Sign out</a></li>";
                         ?>
                     </ul>
@@ -56,7 +56,7 @@
         <main role="main">
             <section class="jumbotron">
                 <div class="container">
-                    <h2><?= ($user_name != "") ? "$user_name" : "$user_id" ?>'s subscription</h2>
+                    <h2><?= ($user_name != "") ? "$user_name" : "$user_id" ?>'s bookmarks</h2>
                 </div>
             </section>
             <div class="album py-5 bg-light">
@@ -66,7 +66,7 @@
                             // Prepare SQL Query
                             require "util/connection.php";
 
-                            $sql_query_series_list = "SELECT SERIES.Series_id, Title, Author, AVG(Value) as Average, Cover_path FROM SERIES, SUBSCRIBE NATURAL JOIN EVALUATION WHERE SERIES.Series_id = SUBSCRIBE.Series_id AND User_id = '$user_id' GROUP BY Series_id";
+                            $sql_query_episode_list = "SELECT EPISODE.Series_id, EPISODE.Episode_id, EPISODE.Title AS Episode_title, SERIES.Title AS Series_title, AVG(Value) AS Average, EPISODE.Cover_path, Update_time FROM EPISODE, BOOKMARK, SERIES NATURAL JOIN EVALUATION WHERE EPISODE.Series_id = BOOKMARK.Series_id AND EPISODE.Episode_id = BOOKMARK.Episode_id AND EPISODE.Series_id = SERIES.Series_id AND BOOKMARK.User_id = '$user_id' GROUP BY Series_id, Episode_id";
 
                             // Connect to database
                             $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
@@ -75,18 +75,21 @@
                                 die("Database connection failed.");
                             }
 
-                            // Get series list
-                            if(($result = $database_connection->query($sql_query_series_list)) == FALSE) {
-                                die("Database operation failed.");
+                            // Get episode list
+                            if(($result = $database_connection->query($sql_query_episode_list)) == FALSE) {
+                                echo "<script>alert('Database operation failed');history.back();</script>";
+                                exit;
                             } else {
-                                while($row = $result->fetch_assoc()) {
+                                while ($row = $result->fetch_assoc()) {
                                     $series_id = $row["Series_id"];
-                                    $title = $row["Title"];
-                                    $author = $row["Author"];
-                                    $average = round($row["Average"] / 2);
+                                    $episode_id = $row["Episode_id"];
+                                    $episode_title = $row["Episode_title"];
+                                    $series_title = $row["Series_title"];
                                     $cover_path = $row["Cover_path"];
+                                    $average = round($row['Average'] / 2);
+                                    $update_time = explode(" ", $row["Update_time"])[0];
 
-                                    echo "<a href='series.php?series_id=$series_id' class='col-md-4' style='text-decoration: none'>";
+                                    echo "<a href='episode.php?series_id=$series_id&episode_id=$episode_id' class='col-md-4' style='text-decoration: none'>";
                                     echo     "<div class='card mb-4 shadow-sm'>";
                                     if($cover_path == "") {
                                         echo     "<svg class='card-img-top' width='100%' height='225' focusable='false'>";
@@ -98,9 +101,10 @@
                                         echo     "<img src='content/$cover_path' alt='Thumbnail' class='card-img-top' width='100%' height='225'>";
                                     }
                                     echo         "<div class='card-body'>";
+                                    echo             "<small class='text-muted'>$series_title</small>";
                                     echo             "<div class='d-flex justify-content-between align-items-center'>";
-                                    echo                 "<p class='card-text series-title'>$title</p>";
-                                    echo                 "<small class='text-muted series-author float-right'>$author</small>";
+                                    echo                 "<p class='card-text episode-title'>$episode_title</p>";
+                                    echo                 "<small class='text-muted float-right'></small>";
                                     echo             "</div>";
                                     echo             "<div class='d-flex justify-content-between align-items-center'>";
                                     echo                 "<div class='float-right'>";
@@ -112,7 +116,7 @@
                                         }
                                     }
                                     echo                 "</div>";
-                                    echo                 "<small class='text-muted'>2019.6.2</small>";
+                                    echo                 "<small class='text-muted'>$update_time</small>";
                                     echo             "</div>";
                                     echo         "</div>";
                                     echo     "</div>";
@@ -120,7 +124,7 @@
                                 }
 
                                 if($result->num_rows == 0) {
-                                    echo "<h5>No subscribed series</h5>";
+                                    echo "<h5>No bookmarks</h5>";
                                 }
                             }
 

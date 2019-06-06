@@ -128,7 +128,7 @@
                 <div class="container">
                     <div class="row">
                         <?php
-                            // Get series list
+                            // Get episode list
                             if(($result = $database_connection->query($sql_query_episode_list)) == FALSE) {
                                 echo "<script>alert('Database operation failed');history.back();</script>";
                                 exit;
