@@ -62,7 +62,7 @@
             <div class="album py-5 bg-light">
                 <div class="container">
                     <div class="row">
-                        <table class="table table-striped">
+                        <table class="table table-hover">
                             <thead>
                             <tr>
                                 <th scope="col">Time</th>
@@ -74,7 +74,7 @@
                                     // Prepare SQL Query
                                     require "util/connection.php";
 
-                                    $sql_query_notification_list = "SELECT Series_id, Episode_id, Message, Update_time, Notified FROM NOTIFICATION WHERE User_id = '$user_id'";
+                                    $sql_query_notification_list = "SELECT Notification_id, Series_id, Episode_id, Message, Update_time, Notified FROM NOTIFICATION WHERE User_id = '$user_id'";
 
                                     // Connect to database
                                     $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
@@ -89,10 +89,11 @@
                                         exit;
                                     } else {
                                         while ($row = $result->fetch_assoc()) {
+                                            $notification_id = $row["Notification_id"];
                                             $series_id = $row["Series_id"];
                                             $episode_id = $row["Episode_id"];
                                             $message = $row["Message"];
-                                            $update_time = explode(" ", $row["Update_time"])[0];
+                                            $update_time = $row["Update_time"];
                                             $notified = $row["Notified"];
 
                                             if(trim($series_id) != "" && trim($episode_id) != "") {
@@ -107,9 +108,13 @@
                                                 $message = str_replace("&episode", "'".$titles["Episode_title"]."'", $message);
                                             }
 
-                                            echo "<tr>";
+                                            if(trim($notified) == "") {
+                                                echo "<tr>";
+                                            } else {
+                                                echo "<tr class='table-active'>";
+                                            }
                                             echo "<td>$update_time</td>";
-                                            echo "<td><a href='util/notification.php?user_id=$user_id&series_id=$series_id&episode_id=$episode_id'>$message</a></td>";
+                                            echo "<td><a href='util/notification.php?user_id=$user_id&notification_id=$notification_id&series_id=$series_id&episode_id=$episode_id'>$message</a></td>";
                                             echo "</tr>";
                                         }
 

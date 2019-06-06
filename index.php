@@ -32,24 +32,47 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <ul class="navbar-nav mr-auto">
                         <?php
-                        if($user_signed) {
-                            // Signed in
-                            echo "<li class='nav-item active'><a class='nav-link' href='notification.php'>";
-                            echo ($user_name != "") ? "$user_name" : "$user_id";
-                            echo "</a></li>";
-                            if($user_id === 'admin') {
-                                // Admin signed in
-                                echo "<li class='nav-item'><a class='nav-link' href='register_series.html'>Register Series</a></li>";
-                                echo "<li class='nav-item'><a class='nav-link' href='register_episode.php'>Register Episode</a></li>";
+                            // Prepare SQL Query
+                            require "util/connection.php";
+
+                            $sql_query_series_list = "SELECT SERIES.Series_id AS Series_id, SERIES.Title AS Title, Author, AVG(Value) as Average, MAX(Update_time) AS Update_time, SERIES.Cover_path AS Cover_path FROM SERIES LEFT JOIN EPISODE ON SERIES.Series_id = EPISODE.Series_id LEFT JOIN EVALUATION ON EPISODE.Series_id = EVALUATION.Series_id GROUP BY SERIES.Series_id";
+                            $sql_query_unread_notification_count = "SELECT COUNT(Notification_id) AS Count FROM NOTIFICATION WHERE User_id = '$user_id' AND Notified IS NULL";
+
+                            // Connect to database
+                            $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
+
+                            if($database_connection->connect_error) {
+                                die("Database connection failed.");
                             }
-                            echo "<li class='nav-item'><a class='nav-link' href='subscribe.php'>Subscribes</a></li>";
-                            echo "<li class='nav-item'><a class='nav-link' href='bookmark.php'>Bookmarks</a></li>";
-                            echo "<li class='nav-item'><a class='nav-link' href='/util/user_signout.php'>Sign out</a></li>";
-                        } else {
-                            // Not signed in
-                            echo "<li class='nav-item'><a class='nav-link' href='signin.html'>Sign in</a></li>";
-                            echo "<li class='nav-item'><a class='nav-link' href='signup.html'>Sign up</a></li>";
-                        }
+
+                            // Get unread notification count
+                            if(($result = $database_connection->query($sql_query_unread_notification_count)) == FALSE) {
+                                die("Database operation failed.");
+                            } else {
+                                $unread_notification_count = $result->fetch_assoc()["Count"];
+                            }
+
+                            if($user_signed) {
+                                // Signed in
+                                echo "<li class='nav-item active'><a class='nav-link' href='notification.php'>";
+                                echo ($user_name != "") ? "$user_name" : "$user_id";
+                                if($unread_notification_count > 0) {
+                                    echo " (".$unread_notification_count.")";
+                                }
+                                echo "</a></li>";
+                                if($user_id === 'admin') {
+                                    // Admin signed in
+                                    echo "<li class='nav-item'><a class='nav-link' href='register_series.html'>Register Series</a></li>";
+                                    echo "<li class='nav-item'><a class='nav-link' href='register_episode.php'>Register Episode</a></li>";
+                                }
+                                echo "<li class='nav-item'><a class='nav-link' href='subscribe.php'>Subscribes</a></li>";
+                                echo "<li class='nav-item'><a class='nav-link' href='bookmark.php'>Bookmarks</a></li>";
+                                echo "<li class='nav-item'><a class='nav-link' href='/util/user_signout.php'>Sign out</a></li>";
+                            } else {
+                                // Not signed in
+                                echo "<li class='nav-item'><a class='nav-link' href='signin.html'>Sign in</a></li>";
+                                echo "<li class='nav-item'><a class='nav-link' href='signup.html'>Sign up</a></li>";
+                            }
                         ?>
                     </ul>
                     <form class="form-inline mt-2 mt-md-0">
@@ -64,18 +87,6 @@
                 <div class="container">
                     <div class="row">
                         <?php
-                            // Prepare SQL Query
-                            require "util/connection.php";
-
-                            $sql_query_series_list = "SELECT SERIES.Series_id AS Series_id, SERIES.Title AS Title, Author, AVG(Value) as Average, MAX(Update_time) AS Update_time, SERIES.Cover_path AS Cover_path FROM SERIES LEFT JOIN EPISODE ON SERIES.Series_id = EPISODE.Series_id LEFT JOIN EVALUATION ON EPISODE.Series_id = EVALUATION.Series_id GROUP BY SERIES.Series_id";
-
-                            // Connect to database
-                            $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
-
-                            if($database_connection->connect_error) {
-                                die("Database connection failed.");
-                            }
-
                             // Get series list
                             if(($result = $database_connection->query($sql_query_series_list)) == FALSE) {
                                 die("Database operation failed.");
