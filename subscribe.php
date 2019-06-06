@@ -66,7 +66,7 @@
                             // Prepare SQL Query
                             require "util/connection.php";
 
-                            $sql_query_series_list = "SELECT SERIES.Series_id, Title, Author, AVG(Value) as Average, Cover_path FROM SERIES, SUBSCRIBE NATURAL JOIN EVALUATION WHERE SERIES.Series_id = SUBSCRIBE.Series_id AND User_id = '$user_id' GROUP BY Series_id";
+                            $sql_query_series_list = "SELECT SERIES.Series_id AS Series_id, SERIES.Title AS Title, Author, AVG(Value) as Average, MAX(Update_time) AS Update_time, SERIES.Cover_path AS Cover_path FROM SERIES, SUBSCRIBE, EPISODE NATURAL JOIN EVALUATION WHERE SERIES.Series_id = SUBSCRIBE.Series_id AND SERIES.Series_id = EPISODE.Series_id AND SUBSCRIBE.User_id = '$user_id' GROUP BY SERIES.Series_id";
 
                             // Connect to database
                             $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
@@ -85,6 +85,7 @@
                                     $author = $row["Author"];
                                     $average = round($row["Average"] / 2);
                                     $cover_path = $row["Cover_path"];
+                                    $update_time = explode(" ", $row["Update_time"])[0];
 
                                     echo "<a href='series.php?series_id=$series_id' class='col-md-4' style='text-decoration: none'>";
                                     echo     "<div class='card mb-4 shadow-sm'>";
@@ -112,7 +113,7 @@
                                         }
                                     }
                                     echo                 "</div>";
-                                    echo                 "<small class='text-muted'>2019.6.2</small>";
+                                    echo                 "<small class='text-muted'>$update_time</small>";
                                     echo             "</div>";
                                     echo         "</div>";
                                     echo     "</div>";
