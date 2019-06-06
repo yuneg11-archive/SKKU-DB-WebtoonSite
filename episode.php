@@ -33,6 +33,7 @@
             $sql_query_comment_list = "SELECT User_id, Content, Update_time FROM COMMENT WHERE Series_id = $series_id AND Episode_id = $episode_id";
             //$sql_query_comment_list = "SELECT User_id, User_name, Content, Update_time FROM COMMENT NATURAL JOIN USER WHERE Series_id = $series_id AND Episode_id = $episode_id"
             $sql_query_bookmark_exist = "SELECT User_id FROM BOOKMARK WHERE User_id = '$user_id' AND Series_id = $series_id AND Episode_id = $episode_id";
+            $sql_query_evaluation_exist = "SELECT Value FROM EVALUATION WHERE User_id = '$user_id' AND Series_id = $series_id AND Episode_id = $episode_id";
 
             // Connect to database
             $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
@@ -127,13 +128,36 @@
                     <div class="row">
                         <div class="col-3"></div>
                         <div class="col-3">
-                            <div class="" style="vertical-align: bottom;">
-                                <span class='fa fa-star checked'></span>
-                                <span class='fa fa-star checked'></span>
-                                <span class='fa fa-star checked'></span>
-                                <span class='fa fa-star'></span>
-                                <span class='fa fa-star'></span>
-                            </div>
+                            <form class="form-inline" method='post' action='util/evaluation.php'>
+                                <div class="form-group">
+                                    <input type='hidden' name='User_id' value='<?= $user_id?>' />
+                                    <input type='hidden' name='Series_id' value='<?= $series_id?>' />
+                                    <input type='hidden' name='Episode_id' value='<?= $episode_id?>' />
+                                    <select class="form-control custom-select" id="inputSeriesID" name="Value" required>
+                                        <option value=''>Episode score...</option>
+                                        <?php
+                                            if(($result = $database_connection->query($sql_query_evaluation_exist)) == FALSE) {
+                                                echo "<script>alert('Database operation failed');history.back();</script>";
+                                                exit;
+                                            } else {
+                                                if($result->num_rows > 0) {
+                                                    $row = $result->fetch_assoc();
+                                                    $value = $row['Value'];
+                                                }
+                                            }
+
+                                            for($i = 1; $i <= 10; $i++) {
+                                                if($i == $value) {
+                                                    echo "<option value='$i' selected='selected'>$i</option>";
+                                                } else {
+                                                    echo "<option value='$i'>$i</option>";
+                                                }
+                                            }
+                                        ?>
+                                    </select>
+                                </div>
+                                <button class="btn btn-secondary" type="submit">Evaluate</button>
+                            </form>
                         </div>
                         <div class="col-3">
                             <?php
