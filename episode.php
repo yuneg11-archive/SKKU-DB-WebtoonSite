@@ -225,6 +225,10 @@
                                             echo "<td>$comment_update_time</td>";
                                             echo "</tr>";
                                         }
+
+                                        if($result->num_rows == 0) {
+                                            echo "<tr><td colspan='3'>No comments</td></tr>";
+                                        }
                                     }
                                 ?>
                             </tbody>
