@@ -75,9 +75,9 @@
                             }
                         ?>
                     </ul>
-                    <form class="form-inline mt-2 mt-md-0">
-                        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-                        <button class="btn my-2 my-sm-0" type="submit"><img src="/img/search.png" alt="Search"></button>
+                    <form class="form-inline" method="post" action="search.php">
+                        <input class="form-control" type="text" placeholder="Search" aria-label="Search" name="Query">
+                        <button class="btn" type="submit"><img src="img/search.png" alt="Search"></button>
                     </form>
                 </div>
             </nav>
