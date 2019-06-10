@@ -33,41 +33,10 @@
         <link href="/css/album.css" rel="stylesheet">
     </head>
     <body>
-        <header>
-            <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-                <a class="navbar-brand" href="#">Webtoon</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-                        aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <ul class="navbar-nav mr-auto">
-                        <?php if($user_signed) { ?>
-                            <li class='nav-item active'>
-                                <a class='nav-link' href='notification.php'>
-                                    <?= ($user_name != "") ? $user_name : $user_id ?>
-                                    <?= ($unread_notification_count > 0) ? " (".$unread_notification_count.")" : "" ?>
-                                </a>
-                            </li>
-                                <?php if($user_id === 'admin') { ?>
-                                    <li class='nav-item'><a class='nav-link' href='register_series.html'>Register Series</a></li>
-                                    <li class='nav-item'><a class='nav-link' href='register_episode.php'>Register Episode</a></li>
-                                <?php } ?>
-                                <li class='nav-item'><a class='nav-link' href='subscribe.php'>Subscribes</a></li>
-                                <li class='nav-item'><a class='nav-link' href='bookmark.php'>Bookmarks</a></li>
-                                <li class='nav-item'><a class='nav-link' href='/util/user_signout.php'>Sign out</a></li>
-                            <?php } else { ?>
-                                <li class='nav-item'><a class='nav-link' href='signin.html'>Sign in</a></li>
-                                <li class='nav-item'><a class='nav-link' href='signup.html'>Sign up</a></li>
-                        <?php } ?>
-                    </ul>
-                    <form class="form-inline" method="post" action="search.php">
-                        <input class="form-control" type="text" placeholder="Search" aria-label="Search" name="Query">
-                        <button class="btn" type="submit"><img src="img/search.png" alt="Search"></button>
-                    </form>
-                </div>
-            </nav>
-        </header>
+        <?php
+            require "util/header.php";
+            echo headerSection($user_signed, $user_id, $user_name, $unread_notification_count, "index");
+        ?>
         <main role="main">
             <div class="album py-5 bg-light">
                 <div class="container">

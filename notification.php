@@ -1,3 +1,24 @@
+<?php
+    session_start();
+    if(!isset($_SESSION['User_id'])) {
+        // Not signed in
+        echo "<script>alert('Please sign in.');history.back();</script>";
+        exit;
+    } else {
+        // Signed in
+        $user_id = $_SESSION['User_id'];
+        $user_name = $_SESSION['User_name'];
+    }
+
+    require "util/query.php";
+
+    try {
+        $db = new Database();
+        $unread_notification_count = QUERY::unread_notification_count($db, $user_id);
+    } catch (Exception $e) {
+        die("Database operation failed.");
+    }
+?>
 <!doctype html>
 <html lang="en">
     <head>
@@ -11,48 +32,9 @@
     </head>
     <body>
         <?php
-            session_start();
-            if(!isset($_SESSION['User_id'])) {
-                // Not signed in
-                echo "<script>alert('Please sign in.');history.back();</script>";
-                exit;
-            } else {
-                // Signed in
-                $user_id = $_SESSION['User_id'];
-                $user_name = $_SESSION['User_name'];
-            }
+            require "util/header.php";
+            echo headerSection(true, $user_id, $user_name, $unread_notification_count, "notification");
         ?>
-        <header>
-            <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-                <a class="navbar-brand" href="index.php">Webtoon</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-                        aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <ul class="navbar-nav mr-auto">
-                        <?php
-                            // Signed in
-                            echo "<li class='nav-item active'><a class='nav-link' href='notification.php'>";
-                            echo ($user_name != "") ? "$user_name" : "$user_id";
-                            echo "</a></li>";
-                            if($user_id === 'admin') {
-                                // Admin signed in
-                                echo "<li class='nav-item'><a class='nav-link' href='register_series.html'>Register Series</a></li>";
-                                echo "<li class='nav-item'><a class='nav-link' href='register_episode.php'>Register Episode</a></li>";
-                            }
-                            echo "<li class='nav-item'><a class='nav-link' href='subscribe.php'>Subscribes</a></li>";
-                            echo "<li class='nav-item'><a class='nav-link' href='bookmark.php'>Bookmarks</a></li>";
-                            echo "<li class='nav-item'><a class='nav-link' href='/util/user_signout.php'>Sign out</a></li>";
-                        ?>
-                    </ul>
-                    <form class="form-inline mt-2 mt-md-0">
-                        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-                        <button class="btn my-2 my-sm-0" type="submit"><img src="/img/search.png" alt="Search"></button>
-                    </form>
-                </div>
-            </nav>
-        </header>
         <main role="main">
             <section class="jumbotron">
                 <div class="container">

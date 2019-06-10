@@ -1,3 +1,42 @@
+<?php
+    session_start();
+    if(!isset($_SESSION['User_id'])) {
+        // Not signed in
+        $user_signed = false;
+    } else {
+        // Signed in
+        $user_signed = true;
+        $user_id = $_SESSION['User_id'];
+        $user_name = $_SESSION['User_name'];
+    }
+
+    $series_id = $_GET['series_id'];
+
+    require "util/query.php";
+
+    try {
+        $db = new Database();
+        $unread_notification_count = QUERY::unread_notification_count($db, $user_id);
+        $series_list = QUERY::series_list($db);
+    } catch (Exception $e) {
+        die("Database operation failed.");
+    }
+
+    // Prepare SQL Query
+    require "util/connection.php";
+
+    $sql_query_series_information = "SELECT Title, Author, Synopsis, AVG(Value) AS Average, Cover_path FROM SERIES LEFT JOIN EVALUATION ON SERIES.Series_id = EVALUATION.Series_id WHERE SERIES.Series_id = $series_id";
+    $sql_query_episode_list = "SELECT EPISODE.Series_id, EPISODE.Episode_id, Title, AVG(Value) AS Average, Cover_path, Update_time FROM EPISODE LEFT JOIN EVALUATION ON EPISODE.Series_id = EVALUATION.Series_id AND EPISODE.Episode_id = EVALUATION.Episode_id WHERE EPISODE.Series_id = $series_id GROUP BY EPISODE.Series_id, EPISODE.Episode_id";
+    $sql_query_subscribe_exist = "SELECT User_id FROM SUBSCRIBE WHERE User_id = '$user_id' AND Series_id = '$series_id'";
+
+    // Connect to database
+    $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
+
+    if ($database_connection->connect_error) {
+        echo "<script>alert('Database connection failed.');history.back();</script>";
+        exit;
+    }
+?>
 <!doctype html>
 <html lang="en">
     <head>
@@ -11,69 +50,9 @@
     </head>
     <body>
         <?php
-            session_start();
-            if(!isset($_SESSION['User_id'])) {
-                // Not signed in
-                $user_signed = false;
-            } else {
-                // Signed in
-                $user_signed = true;
-                $user_id = $_SESSION['User_id'];
-                $user_name = $_SESSION['User_name'];
-            }
-
-            $series_id = $_GET['series_id'];
-
-            // Prepare SQL Query
-            require "util/connection.php";
-
-            $sql_query_series_information = "SELECT Title, Author, Synopsis, AVG(Value) AS Average, Cover_path FROM SERIES LEFT JOIN EVALUATION ON SERIES.Series_id = EVALUATION.Series_id WHERE SERIES.Series_id = $series_id";
-            $sql_query_episode_list = "SELECT EPISODE.Series_id, EPISODE.Episode_id, Title, AVG(Value) AS Average, Cover_path, Update_time FROM EPISODE LEFT JOIN EVALUATION ON EPISODE.Series_id = EVALUATION.Series_id AND EPISODE.Episode_id = EVALUATION.Episode_id WHERE EPISODE.Series_id = $series_id GROUP BY EPISODE.Series_id, EPISODE.Episode_id";
-            $sql_query_subscribe_exist = "SELECT User_id FROM SUBSCRIBE WHERE User_id = '$user_id' AND Series_id = '$series_id'";
-
-            // Connect to database
-            $database_connection = new mysqli($mysql_hostname, $mysql_username, $mysql_password, $mysql_database);
-
-            if ($database_connection->connect_error) {
-                echo "<script>alert('Database connection failed.');history.back();</script>";
-                exit;
-            }
+            require "util/header.php";
+            echo headerSection($user_signed, $user_id, $user_name, $unread_notification_count, "series");
         ?>
-        <header>
-            <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-                <a class="navbar-brand" href="index.php">Webtoon</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-                        aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <ul class="navbar-nav mr-auto">
-                        <?php
-                            if($user_signed) {
-                                // Signed in
-                                echo "<li class='nav-item active'><a class='nav-link' href='notification.php'>";
-                                echo ($user_name != "") ? "$user_name" : "$user_id";
-                                echo "</a></li>";
-                                if($user_id === 'admin') {
-                                    // Admin signed in
-                                    echo "<li class='nav-item'><a class='nav-link' href='register_series.html'>Register Series</a></li>";
-                                    echo "<li class='nav-item'><a class='nav-link' href='register_episode.php'>Register Episode</a></li>";
-                                }
-                                echo "<li class='nav-item'><a class='nav-link' href='/util/user_signout.php'>Sign out</a></li>";
-                            } else {
-                                // Not signed in
-                                echo "<li class='nav-item'><a class='nav-link' href='signin.html'>Sign in</a></li>";
-                                echo "<li class='nav-item'><a class='nav-link' href='signup.html'>Sign up</a></li>";
-                            }
-                        ?>
-                    </ul>
-                    <form class="form-inline mt-2 mt-md-0">
-                        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-                        <button class="btn my-2 my-sm-0" type="submit"><img src="/img/search.png" alt="Search"></button>
-                    </form>
-                </div>
-            </nav>
-        </header>
         <main role="main">
             <section id='jumbotron-series' class="jumbotron">
                 <div class="container">
