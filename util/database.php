@@ -20,6 +20,8 @@
                 throw new Exception("Database operation failed.");
             } else {
                 $index = 0;
+                $rows = array();
+
                 while($row = $result->fetch_assoc()) {
                     $rows[$index] = $row;
                     $index++;
